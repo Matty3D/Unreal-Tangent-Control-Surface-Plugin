@@ -3,6 +3,7 @@
 // SVN: $Revision: 388 $
 
 #include "TangentEngine.h"
+#include "TangentSettings.h"
 #include "ResetCache.h"
 #include "Misc/ScopeLock.h"
 #include "SocketSubsystem.h"
@@ -582,7 +583,16 @@ TangentEngine::~TangentEngine()
 // no match we return the special case no change value
 uint32 TangentEngine::ChooseModeForObjectClass(const FName& className)
 {
-	// start by looking up any mode associated with the suppied class
+	// Explicit plugin settings take priority over per-class bindings.
+    for (const FTangentActorClassModeRule& Rule : GetDefault<UTangentSettings>()->ActorClassModeRules)
+    {
+        if (Rule.ActorClass && Rule.ActorClass->GetFName() == className && !Rule.ModeName.IsNone())
+        {
+            return ConvertMode(Rule.ModeName);
+        }
+    }
+
+    // start by looking up any mode associated with the suppied class
 	FName* modeName = _classToModeMap.Find(className);
 	if (modeName)
 	{

@@ -1,7 +1,21 @@
 #pragma once
 
 #include "Engine/DeveloperSettings.h"
+#include "GameFramework/Actor.h"
 #include "TangentSettings.generated.h"
+
+
+USTRUCT()
+struct FTangentActorClassModeRule
+{
+    GENERATED_BODY()
+
+    UPROPERTY(Config, EditAnywhere, Category="Automatic Mode Switching")
+    TSubclassOf<AActor> ActorClass;
+
+    UPROPERTY(Config, EditAnywhere, Category="Automatic Mode Switching")
+    FName ModeName;
+};
 
 /** Project-wide options for Tangent panel controls. */
 UCLASS(Config=Engine, DefaultConfig, meta=(DisplayName="Tangent"))
@@ -23,7 +37,15 @@ public:
 	UPROPERTY(Config, EditAnywhere, Category="Property Limits", meta=(DisplayName="Enforce Property Limits"))
 	bool bEnforcePropertyLimits = true;
 
-	/** Move the grading wheel with controls mapped to HSV H and S; V remains unchanged. */
+	/** Delay after the last panel property edit before its undo transaction is closed. */
+	UPROPERTY(Config, EditAnywhere, Category="Transactions", meta=(DisplayName="Transaction Close Delay (Seconds)", ClampMin="0.0", UIMin="0.0", UIMax="5.0"))
+	float TransactionCloseDelay = 0.5f;
+
+	/** Actor classes can select named modes from the Tangent mapper. */
+    UPROPERTY(Config, EditAnywhere, Category="Automatic Mode Switching", meta=(DisplayName="Actor Class Mode Rules"))
+    TArray<FTangentActorClassModeRule> ActorClassModeRules;
+
+    /** Move the grading wheel with controls mapped to HSV H and S; V remains unchanged. */
 	UPROPERTY(Config, EditAnywhere, Category="Color Wheel", meta=(DisplayName="Use HSV Controls for Color Wheel Movement"))
 	bool bHSVColorWheelMovement = false;
 };

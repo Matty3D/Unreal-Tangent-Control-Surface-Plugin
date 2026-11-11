@@ -3,6 +3,7 @@
 // SVN: $Revision: 385 $
 
 #include "EngineHelper.h"
+#include "TangentSettings.h"
 #include "ResetCache.h"
 #include "Engine/Selection.h"								// Engine module
 #include "Editor.h"											// UnrealEd module
@@ -273,7 +274,8 @@ void UEngineHelper::OnPostChange(AActor* actor, FProperty *property)
 
 	// set a timer for completion check via the editor shared ref timer manager
 	TSharedRef<FTimerManager> timeMan = GEditor->GetTimerManager();
-	timeMan->SetTimer(_postChangeTimer, this, &UEngineHelper::OnPostChangeCompletion, 0.5, false);
+	const float closeDelay = FMath::Max(0.0f, GetDefault<UTangentSettings>()->TransactionCloseDelay);
+	timeMan->SetTimer(_postChangeTimer, this, &UEngineHelper::OnPostChangeCompletion, closeDelay, false);
 }
 
 // fired by a timer a specific time period following a call to the post change function, if called this marks the correct time to complete
@@ -347,7 +349,8 @@ void UEngineHelper::OnPostPropertyChange(AActor* actor, const PropertyData& data
 		{ return pending.Actor == actor && pending.Path == data.PropertyPath; }))
 		_pendingPropertyChanges.Add({ actor, data.PropertyPath });
 	NotifyPropertyChange(data, EPropertyChangeType::Interactive);
-	GEditor->GetTimerManager()->SetTimer(_postChangeTimer, this, &UEngineHelper::OnPostChangeCompletion, 0.5f, false);
+	const float closeDelay = FMath::Max(0.0f, GetDefault<UTangentSettings>()->TransactionCloseDelay);
+	GEditor->GetTimerManager()->SetTimer(_postChangeTimer, this, &UEngineHelper::OnPostChangeCompletion, closeDelay, false);
 }
 
 void UEngineHelper::CompletePendingPropertyChanges()
