@@ -10,6 +10,8 @@ Bugfixes:
 - Can now bind to inner frustum color grading - now that they've been moved to the color grading window.
 - Fixed a crash, a cached camera reference was keeping the old level alive during cleanup.
 - Can now bind to HSV sliders as well as RGB for color correction.
+
+ New Features:
 - New Plugin settings under Project settings/Tangent, You can turn on an option so that the plugin respects property min/max values. Clamping the range.
 - Another new plugin setting that makes the HS mappings in HSV move around the color wheel using the tracking balls in the direction you move in, rather than direct bindings to the raw values.
 - Exposed the Transaction close delay timer
