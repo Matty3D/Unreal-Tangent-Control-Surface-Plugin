@@ -12,6 +12,11 @@ Bugfixes:
 - Can now bind to HSV sliders as well as RGB for color correction.
 - New Plugin settings under Project settings/Tangent, You can turn on an option so that the plugin respects property min/max values. Clamping the range.
 - Another new plugin setting that makes the HS mappings in HSV move around the color wheel using the tracking balls in the direction you move in, rather than direct bindings to the raw values.
+- Exposed the Transaction close delay timer
+- Added the ability to auto switch to new Tangent modes based upon actor selection
+
+<img width="1367" height="702" alt="image" src="https://github.com/user-attachments/assets/e9872a62-86d0-431e-b520-98df49ab2d24" />
+
 
 The following issues were also fixed:
 
