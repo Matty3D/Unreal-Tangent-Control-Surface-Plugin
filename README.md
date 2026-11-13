@@ -1,34 +1,48 @@
-# Unreal Tangent Control Surface Plugin
+Modified version of the Tangent Control Surface Plugin
+https://www.fab.com/listings/b0b0b6b1-6f0a-47b7-b5cd-cc2738ba1585
 
-Modified source for the [Tangent Control Surface Plugin](https://www.fab.com/listings/b0b0b6b1-6f0a-47b7-b5cd-cc2738ba1585), targeting Unreal Engine 5.6.
 
-## nDisplay mappings
+Bugfixes:
 
-The Tangent Mapper **nDisplay** menu provides:
+ It's now possible to bind correctly to any property on the nDisplay blueprint:
+- Fixed bug where bindings to nDisplay actor properties wouldn't finish the transaction, so you wouldn't see the change until next action.
+- Fixed bug where you could not bind to properties in nDisplay's Per-vewport color grading array
+- Can now bind to inner frustum color grading - now that they've been moved to the color grading window.
+- Fixed a crash, a cached camera reference was keeping the old level alive during cleanup.
+- Can now bind to HSV sliders as well as RGB for color correction.
 
-- **Entire Cluster:** color grading for Global, Shadows, Midtones, and Highlights.
-- **Per-Viewport:** grading for an existing array entry selected with **Per-Viewport Group**.
-- **Viewport Entry 0 / Viewport Entry 1:** independent bindings for the first two per-viewport grading entries. Missing entries reject edits.
-- **ICVFX Camera 1 / ICVFX Camera 2:** independent camera banks. Each **Camera Component** selector lists the actor's available ICVFX components by name. Explicit selector choices are saved per project. A missing named component rejects edits instead of silently targeting another camera.
+ New Features:
+- New Plugin settings under Project settings/Tangent, You can turn on an option so that the plugin respects property min/max values. Clamping the range.
+- Another new plugin setting that makes the HS mappings in HSV move around the color wheel using the tracking balls in the direction you move in, rather than direct bindings to the raw values.
+- Exposed the Transaction close delay timer
+- Added the ability to auto switch to new Tangent modes based upon actor selection
 
-Each grading bank includes Saturation, Contrast, Gamma, Gain, and Offset, with **R/G/B/Y**, **H/S/V**, and **Combined** trackball/dial bindings. Combined mappings move the wheel with trackball X/Y and adjust brightness with the dial, preserving the separate Y/luminance value. Temperature, tint, and exposure compensation are also available.
+<img width="1367" height="702" alt="image" src="https://github.com/user-attachments/assets/e9872a62-86d0-431e-b520-98df49ab2d24" />
 
-ICVFX banks additionally expose **Enable Inner Frustum**, **Enable Inner Frustum Border**, **Enable Inner Frustum Chromakey**, and **Overscan Multiplier**. **Freeze Viewports** controls nDisplay's outer-viewport freeze setting.
 
-Binding definitions remain static in `Tangent/Resources/XML/controls.xml`; camera targets and the shared per-viewport target are selected at runtime. Fixed viewport entries address array slots, so reordering the array changes which grading group occupies a slot. The ICVFX grading controls address each component's `CameraSettings.AllNodesColorGrading.ColorGradingSettings`.
+The following issues were also fixed:
 
-Enable the relevant grading overrides, viewport assignments, and overscan settings in Unreal as usual. Reopen Unreal and reconnect Mapper after updating the plugin definitions. Existing mappings retain their IDs.
+**Socket reconnects can race with outgoing messages.**
 
-## Property mapping and reliability fixes
+The background thread closes and deletes the socket while editor callbacks can call SendToHub() using that same pointer. There’s no synchronization around its lifetime. This creates a potential crash when the Hub disconnects during an edit. Sends are also blocking, so a stalled Hub could freeze the editor.
+Suggestion: Give the communication thread sole ownership of the socket and queue outgoing messages. Handle partial sends rather than only logging them. 
 
-- Training supports nested nDisplay configuration objects, per-viewport arrays, and actor-owned components such as F1/F2.
-- HSV sliders can be trained directly. The obsolete **Use HSV Controls for Color Wheel Movement** option and its reinterpretation of H/S inputs have been removed; H/S/V retain their normal meanings and Combined mappings handle wheel movement.
-- Property edits notify the actual owning objects and complete editor transactions, including indexed and component paths.
-- Property addresses are re-resolved after reconstruction, array changes, and undo/redo.
-- Project settings include property-limit enforcement, transaction completion timing, and automatic actor-class mode rules.
-- Communication, game-thread access, light-color caching, save-time input handling, and property-cache cleanup retain the existing reliability fixes.
+**Some actor access still happens on the background thread.**
 
-## Build and validation
+Incoming commands call MoveSelected(), RotateSelected(), and ScaleSelected(), which read the selected actor and update reset caches before scheduling the actual change on the game thread. Selection changes and world cleanup can happen concurrently. This leaves another potential crash path during map reloads.
+Suggestion: Move the entire operation—including selection lookup, reading values, and reset-cache access—onto the game thread. 
 
-Place `Tangent` in a project's `Plugins` folder and build with the Unreal Engine 5.6 Windows Editor toolchain. nDisplay must be enabled for the nDisplay regression tests. The source requires the original Tangent plugin environment and Tangent Hub/Mapper for hardware operation.
+**Light colors can carry over from the previously selected light.**
 
+HSVColorCache stores one color for 500 milliseconds without recording which light it belongs to. Adjusting light A, then quickly selecting and adjusting light B, can apply A’s cached color to B.
+Suggestion: Associate the cache with a weak light reference and invalidate it when the light changes or its color is edited externally. 
+
+**Autosaving can discard button releases and connection messages.**
+
+ParseReceived() drops the entire incoming packet while saving. That includes button releases, handshake messages, and mode updates—not just property edits. A release lost during autosave could leave a raw-input button logically held.
+Suggestion: Keep processing connection and button-state messages during saves; defer or suppress only scene edits. 
+
+**The property cache grows without cleanup.**
+
+Each new object/property combination allocates a PropertyData with new. I found no matching deletion or cache eviction, including during world cleanup or helper destruction. Repeated level reloads and actor reconstruction can accumulate unused entries.
+Suggestion: Use owned cache entries and remove entries for expired objects or unloaded worlds. 
