@@ -196,6 +196,12 @@ public:
 	void RequestGradingHSV(uint32 targetId);
 
 	void UpdateGradingXYZ(uint32 targetId, float delta);
+	void StepNDisplayViewportGroup(int32 step, bool reset = false);
+	void RequestNDisplayViewportGroup();
+	void UpdateNDisplayParameter(uint32 targetId, float delta);
+	void RequestNDisplayParameter(uint32 targetId);
+	void StepNDisplayCameraTarget(int32 bank, int32 step, bool reset = false);
+	void RequestNDisplayCameraTarget(int32 bank);
 	void ResetGradingXYZ(uint32 targetId);
 
 	void StartTrainingForPanelControl(uint32 controlId);
@@ -211,6 +217,22 @@ private:
 	friend class FTangentPropertyPathTest;
 	friend class FTangentTransactionTest;
 	friend class FTangentHSVMappingTest;
+	friend class FTangentCCRHSVTest;
+	friend class FTangentNDisplayCombinedTest;
+	PropertyData* FetchNDisplayGrading(uint32 targetId);
+	bool NDisplayGradingPrefix(UObject* object, uint32 targetId, FString& prefix);
+	static TArray<UActorComponent*> NDisplayCameras(AActor* actor);
+	UActorComponent* NDisplayCamera(AActor* actor, int32 bank);
+	FName _nDisplayCameraTargets[2];
+	bool _nDisplayCameraTargetsLoaded = false;
+	PropertyData* FetchNDisplayControl(UObject* object, uint32 targetId);
+	bool ApplyNDisplayParameter(uint32 targetId, float delta, float& value);
+	TMap<FString, uint32> _nDisplayResetTargets;
+	uint32 _nextNDisplayResetTarget = 0xFD000000;
+	bool ApplyNDisplayGradingXYZ(uint32 targetId, float delta);
+	int32 NDisplayViewportCount(FString* selectedName = nullptr);
+	int32 _nDisplayViewportIndex = 0;
+	TMap<FString, double> _nDisplayWheelInitials;
 	friend class FTangentNDisplayTrainingTest;
 	friend class FTangentWorldCleanupTest;
 	friend class FTangentCacheLifecycleTest;

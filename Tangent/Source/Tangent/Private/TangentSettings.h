@@ -45,7 +45,4 @@ public:
     UPROPERTY(Config, EditAnywhere, Category="Automatic Mode Switching", meta=(DisplayName="Actor Class Mode Rules"))
     TArray<FTangentActorClassModeRule> ActorClassModeRules;
 
-    /** Move the grading wheel with controls mapped to HSV H and S; V remains unchanged. */
-	UPROPERTY(Config, EditAnywhere, Category="Color Wheel", meta=(DisplayName="Use HSV Controls for Color Wheel Movement"))
-	bool bHSVColorWheelMovement = false;
 };

@@ -1237,6 +1237,11 @@ void TangentEngine::ParseParamChangeCmd(RxContext& rxContext)
 
 	// there are a large number of post process volume and color correct region based params which we don't want to have to support individually 
 	// so these target ids are bit encoded with a master detection flag, test for these as exceptions first, if not encoded then carry on as usual
+	if (TargetId::IsNDisplayParameter(paramId))
+	{
+		_engineHelper->UpdateNDisplayParameter(paramId, delta);
+		return;
+	}
 	if (TargetId::IsGradingHSV(paramId))
 	{
 		// grading based param change for hsv, handle here then we are all done so return
@@ -1388,6 +1393,11 @@ void TangentEngine::ParseParamResetCmd(RxContext& rxContext)
 
 	// there are a large number of post process volume and color correct region based params which we don't want to have to support individually 
 	// so these target ids are bit encoded with a master detection flag, test for these as exceptions first, if not encoded then carry on as usual
+	if (TargetId::IsNDisplayParameter(paramId))
+	{
+		_engineHelper->UpdateNDisplayParameter(paramId, 0);
+		return;
+	}
 	if (TargetId::IsGradingHSV(paramId))
 	{
 		// grading based param reset for hsv, handle here then we are all done so return
@@ -1493,6 +1503,11 @@ void TangentEngine::ParseParamValueRequestCmd(RxContext& rxContext)
 	
 	// there are a large number of post process volume and color correct region based params which we don't want to have to support individually 
 	// so these target ids are bit encoded with a master detection flag, test for these as exceptions first, if not encoded then carry on as usual
+	if (TargetId::IsNDisplayParameter(paramId))
+	{
+		_engineHelper->RequestNDisplayParameter(paramId);
+		return;
+	}
 	if (TargetId::IsGradingHSV(paramId))
 	{
 		// grading based param value request for hsv, handle here then we are all done so return
@@ -2120,6 +2135,13 @@ void TangentEngine::ParseMenuChangeCmd(RxContext& rxContext)
 	// handle by target id, individual ids may be handled with bespoke functions, all others are passed to the property based api
 	switch (menuId)
 	{
+		case TargetId::NDisplayCamera1Target:
+		case TargetId::NDisplayCamera2Target:
+			_engineHelper->StepNDisplayCameraTarget(menuId == TargetId::NDisplayCamera1Target ? 0 : 1, step);
+			break;
+		case TargetId::NDisplayViewportGroup:
+			_engineHelper->StepNDisplayViewportGroup(step);
+			break;
 		case TargetId::TransformReference:
 			// change the setting in the helper
 			_engineHelper->StepTransformReference(step);
@@ -2167,6 +2189,13 @@ void TangentEngine::ParseMenuResetCmd(RxContext& rxContext)
 	// handle by target id, individual ids may be handled with bespoke functions, all others are passed to the property based api
 	switch (menuId)
 	{
+		case TargetId::NDisplayCamera1Target:
+		case TargetId::NDisplayCamera2Target:
+			_engineHelper->StepNDisplayCameraTarget(menuId == TargetId::NDisplayCamera1Target ? 0 : 1, 0, true);
+			break;
+		case TargetId::NDisplayViewportGroup:
+			_engineHelper->StepNDisplayViewportGroup(0, true);
+			break;
 		case TargetId::TransformReference:
 			// reset the setting in the helper
 			_engineHelper->ResetTransformReference();
@@ -2205,6 +2234,13 @@ void TangentEngine::ParseMenuStringRequestCmd(RxContext& rxContext)
 	// handle by target id, individual ids may be handled with bespoke functions, all others are passed to the property based api
 	switch (menuId)
 	{
+		case TargetId::NDisplayCamera1Target:
+		case TargetId::NDisplayCamera2Target:
+			_engineHelper->RequestNDisplayCameraTarget(menuId == TargetId::NDisplayCamera1Target ? 0 : 1);
+			break;
+		case TargetId::NDisplayViewportGroup:
+			_engineHelper->RequestNDisplayViewportGroup();
+			break;
 		case TargetId::TransformReference:
 			// request the setting from the helper
 			_engineHelper->RequestTransformReference();

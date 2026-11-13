@@ -446,6 +446,12 @@ namespace TargetId
 		GRADING_CC_EncodedXYZ = 0x0000C000,
 		GRADING_CPP_EncodedHSV = 0x0000B000,		// camera
 		GRADING_CPP_EncodedXYZ = 0x0000A000,
+		GRADING_NDisplayClusterXYZ = 0x00009000,
+		GRADING_NDisplayViewportXYZ = 0x00008000,
+		NDisplayViewportGroup = 0x00040080,
+		NDisplayFreezeViewports = 0x00040081,
+		NDisplayCamera1Target = 0x00040082,
+		NDisplayCamera2Target = 0x00040083,
 
 		// there are top level sections...
 		GRADING_Global = 0x100,
@@ -1139,7 +1145,10 @@ namespace TargetId
 
 	// helper functions for post process target ids to extract meta data about settings sections and colour components
 	inline bool IsGradingHSV(uint32 targetId) { uint32 val = targetId & 0x0000F000; return ((val == GRADING_PP_EncodedHSV) || (val == GRADING_CC_EncodedHSV) || (val == GRADING_CPP_EncodedHSV)); }
-	inline bool IsGradingXYZ(uint32 targetId) { uint32 val = targetId & 0x0000F000; return ((val == GRADING_PP_EncodedXYZ) || (val == GRADING_CC_EncodedXYZ) || (val == GRADING_CPP_EncodedXYZ)); }
+	inline bool IsGradingXYZ(uint32 targetId) { uint32 val = targetId & 0x0000F000; return ((val == GRADING_PP_EncodedXYZ) || (val == GRADING_CC_EncodedXYZ) || (val == GRADING_CPP_EncodedXYZ) || (val == GRADING_NDisplayClusterXYZ) || (val == GRADING_NDisplayViewportXYZ)); }
+	inline bool IsNDisplayGrading(uint32 targetId) { uint32 val = targetId & 0x00FFF000; return (targetId >> 24) <= 4 && (val == (0x00030000 | GRADING_NDisplayClusterXYZ) || val == (0x00030000 | GRADING_NDisplayViewportXYZ)); }
+	inline bool IsNDisplayParameter(uint32 targetId) { uint32 val = targetId & 0x00FFF000; return (targetId >> 24) <= 4 && val >= 0x00034000 && val <= 0x00037000; }
+	inline bool IsNDisplayCameraMenu(uint32 targetId) { return (targetId >> 24) >= 3 && (targetId >> 24) <= 4 && (targetId & 0x00FFFFF0) == 0x00040090; }
 	inline bool IsPostProcessGrading(uint32 targetId) { uint32 val = targetId & 0x0000F000; return ((val == GRADING_PP_EncodedHSV) || (val == GRADING_PP_EncodedXYZ)); }
 	inline bool IsColorCorrectGrading(uint32 targetId) { uint32 val = targetId & 0x0000F000; return ((val == GRADING_CC_EncodedHSV) || (val == GRADING_CC_EncodedXYZ)); }
 	inline bool IsCameraPostProcessGrading(uint32 targetId) { uint32 val = targetId & 0x0000F000; return ((val == GRADING_CPP_EncodedHSV) || (val == GRADING_CPP_EncodedXYZ)); }

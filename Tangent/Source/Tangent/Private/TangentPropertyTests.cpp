@@ -484,25 +484,7 @@ bool FTangentHSVMappingTest::RunTest(const FString&)
 		TestTrue(TEXT("Read an external RGB edit"), Fetch(TEXT("HSV_H"))->GetParameterValue(value));
 		TestEqual(TEXT("External RGB invalidates cache"), value, 240.f);
 		TestEqual(TEXT("External luminance preserved"), gain.W, 0.25);
-		{
-			TGuardValue<bool> wheelMode(GetMutableDefault<UTangentSettings>()->bHSVColorWheelMovement, true);
-			gain = FVector4(1, 1, 1, 0.75);
-			const uint32 wheelTarget = ++target;
-			TestTrue(TEXT("Move wheel right from center"), hue->AdjustParameterValue(&changes, actor, wheelTarget, 90, value));
-			FLinearColor moved = hue->GetGradingHSV();
-			TestTrue(TEXT("Right movement selects wheel's right-hand hue"), FMath::IsNearlyEqual(moved.R, 240.f, 0.01f));
-			TestTrue(TEXT("Right movement changes radius"), FMath::IsNearlyEqual(moved.G, FMath::Pow(0.25f, 2.4f), 0.001f));
-			TestTrue(TEXT("Move wheel upward"), saturation->AdjustParameterValue(&changes, actor, ++target, 0.25f, value));
-			moved = hue->GetGradingHSV();
-			TestTrue(TEXT("Upward movement changes hue and saturation"), moved.R > 240.f && moved.G > 0.05f);
-			TestTrue(TEXT("Value control remains HSV value"), brightness->AdjustParameterValue(&changes, actor, ++target, 0.25f, value));
-			TestTrue(TEXT("Value increases independently"), FMath::IsNearlyEqual(value, 1.25f));
-			TestEqual(TEXT("Wheel preserves luminance"), gain.W, 0.75);
-			ResetCache::TapNow(wheelTarget);
-			TestTrue(TEXT("Wheel axis single reset"), hue->AdjustParameterValue(&changes, actor, wheelTarget, 0, value));
-			moved = hue->GetGradingHSV();
-			TestTrue(TEXT("Reset restores horizontal axis without changing vertical axis"), FMath::IsNearlyEqual(moved.R, 330.f, 0.01f));
-		}
+
 		FString invalid = TEXT("CameraComponent.PostProcessSettings.AutoExposureBias.HSV_H");
 		AddExpectedError(TEXT("Tangent: cannot resolve property"), EAutomationExpectedErrorFlags::Contains, 1);
 		TestNull(TEXT("Reject HSV on ordinary numeric property"), helper->FetchPropertyData(actor, invalid));

@@ -1043,6 +1043,8 @@ void UEngineHelper::OnMapChanged(uint32 flags)
 
 	// trigger the release of all the reset data in the singleton cache instance as it doesn't carry between levels
 	ResetCache::Clear();
+	_nDisplayWheelInitials.Empty();
+	_nDisplayResetTargets.Empty();
 }
 
 // called by unreal when a sequencer instance has been created, we store this to be able to perform sequencer based control mappings
@@ -1780,6 +1782,13 @@ FProperty* UEngineHelper::FetchProperty(UObject* obj, const FName propertyPath)
 // target id, the data is cached as much as possible, may be null if not available
 PropertyData* UEngineHelper::FetchPropertyData(UObject* obj, uint32 targetId)
 {
+	if (TargetId::IsNDisplayCameraMenu(targetId)) return FetchNDisplayControl(obj, targetId);
+	if (targetId == TargetId::NDisplayFreezeViewports)
+	{
+		if (!IsValid(obj) || !obj->GetClass()->FindPropertyByName(TEXT("CurrentConfigData"))) return nullptr;
+		return FetchPropertyData(obj, FName(TEXT("CurrentConfigData.StageSettings.bFreezeRenderOuterViewports")));
+	}
+
 	// look up the registered property path in the map, it may be null if it hasn't been registered
 	if (FName* propertyPath = _targetIdPropertyMap.Find(targetId))
 	{ 
@@ -3030,6 +3039,12 @@ void UEngineHelper::UpdateGradingXYZ(uint32 targetId, float delta)
 		if (_saveWorldActive)
 		{
 			// ignore this call as a save is being processed
+			return;
+		}
+
+		if (TargetId::IsNDisplayGrading(targetId))
+		{
+			ApplyNDisplayGradingXYZ(targetId, delta);
 			return;
 		}
 

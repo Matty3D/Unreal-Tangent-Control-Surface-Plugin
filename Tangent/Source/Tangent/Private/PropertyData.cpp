@@ -82,64 +82,7 @@ bool PropertyData::AdjustParameterValue(PropertyChangeHelper* helper, AActor* ac
 	if (HSVComponent != INDEX_NONE)
 	{
 		FLinearColor hsv = GetGradingHSV();
-		if (HSVComponent < 2 && GetDefault<UTangentSettings>()->bHSVColorWheelMovement)
-		{
-			// Match the grading wheel's orientation and nonlinear saturation radius.
-#if (ENGINE_MAJOR_VERSION > 5) || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 5)
-			const double rotation = PI / 3.0;
-			const double xSign = -1.0;
-#else
-			const double rotation = 0.0;
-			const double xSign = 1.0;
-#endif
-			auto ToXY = [rotation, xSign](const FLinearColor& color)
-			{
-				const double angle = FMath::DegreesToRadians(static_cast<double>(color.R)) - rotation;
-				const double radius = FMath::Pow(FMath::Clamp(static_cast<double>(color.G), 0.0, 1.0), 1.0 / 2.4);
-				return FVector2D(xSign * FMath::Cos(angle) * radius, FMath::Sin(angle) * radius);
-			};
-			FVector2D xy = ToXY(hsv);
-			double axis = HSVComponent == 0 ? xy.X : xy.Y;
-			if (delta == 0)
-			{
-				if (ResetCache::IsSingleTap(targetId))
-				{
-					if (!ResetCache::GetValue(targetId, actor, &axis)) return false;
-				}
-				else
-				{
-					if (!DefaultDataPtr) return false;
-					const FVector4& initial = *static_cast<FVector4*>(DefaultDataPtr);
-					const FVector2D defaultXY = ToXY(FLinearColor(initial.X, initial.Y, initial.Z).LinearRGBToHSV());
-					axis = HSVComponent == 0 ? defaultXY.X : defaultXY.Y;
-				}
-			}
-			else
-			{
-				ResetCache::CacheInitialValue(targetId, actor, axis);
-				// Hue deltas use degrees while saturation deltas are normalized.
-				axis += HSVComponent == 0 ? delta / 360.0 : -delta;
-			}
-			if (!FMath::IsFinite(axis)) return false;
-			if (HSVComponent == 0) xy.X = axis; else xy.Y = axis;
-			if (xy.SizeSquared() > 1.0) xy.Normalize();
-			if (!xy.IsNearlyZero())
-			{
-				double angle = FMath::Atan2(xy.Y, xSign * xy.X) + rotation;
-				if (angle < 0.0) angle += 2.0 * PI;
-				hsv.R = FMath::Fmod(FMath::RadiansToDegrees(angle), 360.0);
-			}
-			hsv.G = FMath::Pow(xy.Size(), 2.4);
-			const FLinearColor rgb = hsv.HSVToLinearRGB();
-			FVector4 updated(rgb.R, rgb.G, rgb.B, static_cast<FVector4*>(DataPtr)->W);
-			if (!helper->OnPrePropertyChange(actor, *this, TEXT("Edit color grading wheel"))) return false;
-			*static_cast<FVector4*>(DataPtr) = updated;
-			GradingState->RGB = updated;
-			GradingState->HSV = hsv;
-			newValue = hsv.Component(HSVComponent);
-			helper->OnPostPropertyChange(actor, *this);
-			return true;
-		}
+
 		double value = hsv.Component(HSVComponent);
 		if (delta == 0)
 		{
