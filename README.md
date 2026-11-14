@@ -18,7 +18,8 @@ Bugfixes:
 - Added the ability to auto switch to new Tangent modes based upon actor selection
 <img width="1097" height="326" alt="image" src="https://github.com/user-attachments/assets/02cab20c-4bf5-4560-a8b5-8b4919f98429" />
 - There are now bindings in the tangent mapper for common nDisplay Properties
-<img width="708" height="244" alt="image" src="https://github.com/user-attachments/assets/54bde648-4b27-418b-8d8e-a7a97fd09f35" />
+<img width="708" height="232" alt="image" src="https://github.com/user-attachments/assets/b4115e2d-3e92-43ea-8d0d-72871afa565c" />
+
 
 
 The following issues were also fixed:
