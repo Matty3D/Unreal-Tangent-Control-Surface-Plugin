@@ -10,15 +10,15 @@ Source changes based on Tangent 1.1.5. This checkout targets Unreal Engine 5.6.
 
 ## Native nDisplay controls
 
-`NDisplayGrading.cpp` resolves Entire Cluster and Per-Viewport vectors and scalars through `CurrentConfigData.StageSettings`. Selected per-viewport bindings use **Per-Viewport Group**; separate **Viewport Entry 0 / 1** banks address the first two slots independently.
+`NDisplayGrading.cpp` resolves nDisplay vectors and scalars through `CurrentConfigData.StageSettings`. Mapper exposes **Entire Cluster Color Grading**, **Per Viewport Color Grading Entry 0**, and **Per Viewport Color Grading Entry 1**. The shared selector-based Per-Viewport group is removed from the available menus; its legacy command handling remains for compatibility. The two fixed-entry banks address array slots independently.
 
-Each ICVFX bank resolves a chosen component name through `@ComponentName.CameraSettings`. Grading uses `AllNodesColorGrading.ColorGradingSettings`. Additional native fields are `bEnable`, `Border.Enable`, `Chromakey.bEnable`, and `CustomFrustum.FieldOfViewMultiplier`. Camera selector choices are stored in the project editor configuration under `Tangent.NDisplayTargets`, keys `Camera1` and `Camera2`. Without an explicit choice, banks default to the first and second ICVFX components sorted by object name.
+Each ICVFX bank targets the first or second ICVFX component sorted by component object name, resolved through `@ComponentName.CameraSettings`. Grading uses `AllNodesColorGrading.ColorGradingSettings`. Additional native fields are `bEnable`, `Border.Enable`, `Chromakey.bEnable`, and `CustomFrustum.FieldOfViewMultiplier`. Camera Component selector menus, saved-target overrides, and their protocol handlers have been removed. A bank with no corresponding camera rejects edits.
 
 Combined bindings bundle three existing-style wheel parameters. They reuse the plugin's wheel orientation, saturation-radius conversion, inverted vertical direction, brightness limits, and offset translation. nDisplay edits preserve vector W and use the reflected-property notification/transaction path. Reset baselines are separated by actor, property path, and axis; individual parameters use per-path reset identities so changing the selected viewport or camera does not transfer reset values to a different property.
 
 Individual R/G/B/Y and H/S/V controls coexist with Combined bindings. Temperature, tint, and exposure compensation use the native white-balance/exposure fields. Freeze Viewports targets `CurrentConfigData.StageSettings.bFreezeRenderOuterViewports`.
 
-Mapper definitions contain **120 Combined bindings, 1220 parameters, and 10 menus** within nDisplay. Existing IDs are preserved. Independent viewport banks use high-byte tags 1/2; camera banks use 3/4. Runtime target selection refreshes mapped displays. This plugin does not append actor-specific binding groups to Mapper at runtime.
+Mapper definitions contain **100 Combined bindings, 1017 parameters, and 7 menus** within nDisplay. Existing IDs are preserved. Independent viewport banks use high-byte tags 1/2; camera banks use 3/4. This plugin does not append actor-specific binding groups to Mapper at runtime.
 
 ## Removed HSV wheel reinterpretation
 

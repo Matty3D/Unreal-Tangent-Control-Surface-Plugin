@@ -46,4 +46,12 @@ Suggestion: Keep processing connection and button-state messages during saves; d
 **The property cache grows without cleanup.**
 
 Each new object/property combination allocates a PropertyData with new. I found no matching deletion or cache eviction, including during world cleanup or helper destruction. Repeated level reloads and actor reconstruction can accumulate unused entries.
-Suggestion: Use owned cache entries and remove entries for expired objects or unloaded worlds. 
+Suggestion: Use owned cache entries and remove entries for expired objects or unloaded worlds.
+
+## Fixed ICVFX camera banks
+
+ICVFX Camera 1 and ICVFX Camera 2 target the first and second ICVFX components sorted by component object name. The Camera Component selector menus and saved-target overrides have been removed. Grading channels, Combined bindings, and inner-frustum controls remain available in both banks.
+
+## nDisplay color grading menu names
+
+The available grading scopes are **Entire Cluster Color Grading**, **Per Viewport Color Grading Entry 0**, and **Per Viewport Color Grading Entry 1**. The shared selector-based Per-Viewport menu has been removed. Fixed-entry and camera bindings retain their IDs.

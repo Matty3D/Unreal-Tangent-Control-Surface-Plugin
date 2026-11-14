@@ -2135,10 +2135,6 @@ void TangentEngine::ParseMenuChangeCmd(RxContext& rxContext)
 	// handle by target id, individual ids may be handled with bespoke functions, all others are passed to the property based api
 	switch (menuId)
 	{
-		case TargetId::NDisplayCamera1Target:
-		case TargetId::NDisplayCamera2Target:
-			_engineHelper->StepNDisplayCameraTarget(menuId == TargetId::NDisplayCamera1Target ? 0 : 1, step);
-			break;
 		case TargetId::NDisplayViewportGroup:
 			_engineHelper->StepNDisplayViewportGroup(step);
 			break;
@@ -2189,10 +2185,6 @@ void TangentEngine::ParseMenuResetCmd(RxContext& rxContext)
 	// handle by target id, individual ids may be handled with bespoke functions, all others are passed to the property based api
 	switch (menuId)
 	{
-		case TargetId::NDisplayCamera1Target:
-		case TargetId::NDisplayCamera2Target:
-			_engineHelper->StepNDisplayCameraTarget(menuId == TargetId::NDisplayCamera1Target ? 0 : 1, 0, true);
-			break;
 		case TargetId::NDisplayViewportGroup:
 			_engineHelper->StepNDisplayViewportGroup(0, true);
 			break;
@@ -2234,10 +2226,6 @@ void TangentEngine::ParseMenuStringRequestCmd(RxContext& rxContext)
 	// handle by target id, individual ids may be handled with bespoke functions, all others are passed to the property based api
 	switch (menuId)
 	{
-		case TargetId::NDisplayCamera1Target:
-		case TargetId::NDisplayCamera2Target:
-			_engineHelper->RequestNDisplayCameraTarget(menuId == TargetId::NDisplayCamera1Target ? 0 : 1);
-			break;
 		case TargetId::NDisplayViewportGroup:
 			_engineHelper->RequestNDisplayViewportGroup();
 			break;

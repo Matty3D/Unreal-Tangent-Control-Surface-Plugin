@@ -202,7 +202,6 @@ bool FTangentNDisplayCombinedTest::RunTest(const FString&)
 		UActorComponent* f2 = NewObject<UActorComponent>(actor, cameraClass, TEXT("F2"), RF_Transactional);
 		UActorComponent* f1 = NewObject<UActorComponent>(actor, cameraClass, TEXT("F1"), RF_Transactional);
 		actor->AddInstanceComponent(f2); actor->AddInstanceComponent(f1);
-		helper->_nDisplayCameraTargetsLoaded = true; // Tests must not consume user-saved selectors.
 		TestTrue(TEXT("Camera one defaults to first sorted name"), helper->NDisplayCamera(actor, 0) == f1);
 		TestTrue(TEXT("Camera two defaults to second sorted name"), helper->NDisplayCamera(actor, 1) == f2);
 		for (uint32 bank : { 3u, 4u })
@@ -240,11 +239,8 @@ bool FTangentNDisplayCombinedTest::RunTest(const FString&)
 			TestTrue(TEXT("Camera one Combined works"), helper->ApplyNDisplayGradingXYZ(0x03039141, 0.1f));
 			TestEqual(TEXT("Camera Combined preserves fourth component"), static_cast<FVector4*>(helper->FetchNDisplayGrading(0x03039141)->DataPtr)->W, 0.2);
 		}
-		helper->_nDisplayCameraTargets[0] = TEXT("F2");
-		TestTrue(TEXT("Camera bank can select any named component"), helper->NDisplayCamera(actor, 0) == f2);
-		helper->_nDisplayCameraTargets[0] = TEXT("RemovedCamera");
-		TestFalse(TEXT("Missing named camera never retargets silently"), helper->ApplyNDisplayParameter(0x03037141, 0.1f, reported));
-		helper->_nDisplayCameraTargets[0] = TEXT("F1");
+		TestNull(TEXT("No third fixed camera bank"), helper->NDisplayCamera(actor, 2));
+		TestNull(TEXT("No actor has no camera"), helper->NDisplayCamera(nullptr, 0));
 	}
 	helper->OnPostChangeCompletion();
 	stage = helper->FetchPropertyData(actor, FName(TEXT("CurrentConfigData.StageSettings")));

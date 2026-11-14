@@ -200,8 +200,6 @@ public:
 	void RequestNDisplayViewportGroup();
 	void UpdateNDisplayParameter(uint32 targetId, float delta);
 	void RequestNDisplayParameter(uint32 targetId);
-	void StepNDisplayCameraTarget(int32 bank, int32 step, bool reset = false);
-	void RequestNDisplayCameraTarget(int32 bank);
 	void ResetGradingXYZ(uint32 targetId);
 
 	void StartTrainingForPanelControl(uint32 controlId);
@@ -223,8 +221,6 @@ private:
 	bool NDisplayGradingPrefix(UObject* object, uint32 targetId, FString& prefix);
 	static TArray<UActorComponent*> NDisplayCameras(AActor* actor);
 	UActorComponent* NDisplayCamera(AActor* actor, int32 bank);
-	FName _nDisplayCameraTargets[2];
-	bool _nDisplayCameraTargetsLoaded = false;
 	PropertyData* FetchNDisplayControl(UObject* object, uint32 targetId);
 	bool ApplyNDisplayParameter(uint32 targetId, float delta, float& value);
 	TMap<FString, uint32> _nDisplayResetTargets;

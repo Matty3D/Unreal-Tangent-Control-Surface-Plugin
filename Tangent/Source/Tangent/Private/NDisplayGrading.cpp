@@ -3,7 +3,7 @@
 #include "EngineHelper.h"
 #include "ResetCache.h"
 #include "Async/Async.h"
-#include "Misc/ConfigCacheIni.h"
+
 
 TArray<UActorComponent*> UEngineHelper::NDisplayCameras(AActor* actor)
 {
@@ -19,54 +19,8 @@ TArray<UActorComponent*> UEngineHelper::NDisplayCameras(AActor* actor)
 UActorComponent* UEngineHelper::NDisplayCamera(AActor* actor, int32 bank)
 {
 	if (bank < 0 || bank > 1) return nullptr;
-	if (!_nDisplayCameraTargetsLoaded)
-	{
-		_nDisplayCameraTargetsLoaded = true;
-		for (int32 slot = 0; slot < 2; ++slot)
-		{
-			FString saved;
-			if (GConfig && GConfig->GetString(TEXT("Tangent.NDisplayTargets"), *FString::Printf(TEXT("Camera%d"), slot + 1), saved, GEditorPerProjectIni))
-				_nDisplayCameraTargets[slot] = FName(*saved);
-		}
-	}
 	const TArray<UActorComponent*> cameras = NDisplayCameras(actor);
-	if (_nDisplayCameraTargets[bank].IsNone()) return cameras.IsValidIndex(bank) ? cameras[bank] : nullptr;
-	for (UActorComponent* camera : cameras) if (camera->GetFName() == _nDisplayCameraTargets[bank]) return camera;
-	return nullptr; // A removed named camera must never silently retarget another component.
-}
-
-void UEngineHelper::StepNDisplayCameraTarget(int32 bank, int32 step, bool reset)
-{
-	if (bank < 0 || bank > 1) return;
-	AsyncTask(ENamedThreads::GameThread, [this, bank, step, reset]()
-	{
-		const TArray<UActorComponent*> cameras = NDisplayCameras(_selectedActor);
-		if (!cameras.IsEmpty())
-		{
-			const int32 current = cameras.IndexOfByKey(NDisplayCamera(_selectedActor, bank));
-			const int32 index = reset ? FMath::Min(bank, cameras.Num() - 1)
-				: static_cast<int32>(FMath::Clamp<int64>(static_cast<int64>(FMath::Max(current, 0)) + step, 0, cameras.Num() - 1));
-			_nDisplayCameraTargets[bank] = cameras[index]->GetFName();
-			if (GConfig)
-			{
-				GConfig->SetString(TEXT("Tangent.NDisplayTargets"), *FString::Printf(TEXT("Camera%d"), bank + 1), *cameras[index]->GetName(), GEditorPerProjectIni);
-				GConfig->Flush(false, GEditorPerProjectIni);
-			}
-		}
-		RequestNDisplayCameraTarget(bank);
-		ActorPropertyChangedEvent.Broadcast();
-	});
-}
-
-void UEngineHelper::RequestNDisplayCameraTarget(int32 bank)
-{
-	if (bank < 0 || bank > 1) return;
-	AsyncTask(ENamedThreads::GameThread, [this, bank]()
-	{
-		UActorComponent* camera = NDisplayCamera(_selectedActor, bank);
-		FString name = camera ? camera->GetName() : TEXT("Camera unavailable");
-		MenuStringEvent.Broadcast(bank == 0 ? TargetId::NDisplayCamera1Target : TargetId::NDisplayCamera2Target, name);
-	});
+	return cameras.IsValidIndex(bank) ? cameras[bank] : nullptr;
 }
 
 bool UEngineHelper::NDisplayGradingPrefix(UObject* object, uint32 targetId, FString& prefix)

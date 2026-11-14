@@ -450,8 +450,6 @@ namespace TargetId
 		GRADING_NDisplayViewportXYZ = 0x00008000,
 		NDisplayViewportGroup = 0x00040080,
 		NDisplayFreezeViewports = 0x00040081,
-		NDisplayCamera1Target = 0x00040082,
-		NDisplayCamera2Target = 0x00040083,
 
 		// there are top level sections...
 		GRADING_Global = 0x100,
