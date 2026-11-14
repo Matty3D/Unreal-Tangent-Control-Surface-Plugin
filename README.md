@@ -1,10 +1,11 @@
 Modified version of the Tangent Control Surface Plugin
 https://www.fab.com/listings/b0b0b6b1-6f0a-47b7-b5cd-cc2738ba1585
 
+Mainly to fix bugs so that the panel works with nDisplay
 
 Bugfixes:
 
- It's now possible to bind correctly to any property on the nDisplay blueprint:
+- It's now possible to bind correctly to any property on nDisplay blueprints:
 - Fixed bug where bindings to nDisplay actor properties wouldn't finish the transaction, so you wouldn't see the change until next action.
 - Fixed bug where you could not bind to properties in nDisplay's Per-vewport color grading array
 - Can now bind to inner frustum color grading - now that they've been moved to the color grading window.
@@ -13,11 +14,11 @@ Bugfixes:
 
  New Features:
 - New Plugin settings under Project settings/Tangent, You can turn on an option so that the plugin respects property min/max values. Clamping the range.
-- Another new plugin setting that makes the HS mappings in HSV move around the color wheel using the tracking balls in the direction you move in, rather than direct bindings to the raw values.
 - Exposed the Transaction close delay timer
 - Added the ability to auto switch to new Tangent modes based upon actor selection
-
-<img width="1367" height="702" alt="image" src="https://github.com/user-attachments/assets/e9872a62-86d0-431e-b520-98df49ab2d24" />
+<img width="1097" height="326" alt="image" src="https://github.com/user-attachments/assets/02cab20c-4bf5-4560-a8b5-8b4919f98429" />
+- There are now bindings in the tangent mapper for common nDisplay Properties
+<img width="708" height="244" alt="image" src="https://github.com/user-attachments/assets/54bde648-4b27-418b-8d8e-a7a97fd09f35" />
 
 
 The following issues were also fixed:
